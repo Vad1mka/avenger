@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang='ru'>
+<head>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>Инструктор FastCheck by Изгой</title>
+<style>
+  :root{
+    --bg:#0e1117;--panel:#131826;--ink:#e9eef8;--muted:#9aa6bd;--accent:#f59e0b;
+    --blue:#3b82f6;--br:#243049;--ok:#22c55e;--bad:#ef4444;--mono:ui-monospace,Menlo,Consolas,monospace
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu}
+  .wrap{max-width:1180px;margin:28px auto;padding:0 16px}
+  .header-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+  h1{font-size:24px;margin:0;font-weight:800;letter-spacing:.2px}
+  h1 .ver{font-weight:600;color:var(--muted);font-size:14px;margin-left:8px}
+  h3{margin:0;font-size:18px}
+  .muted{color:var(--muted)}
+  .card{background:var(--panel);border:1px solid var(--br);border-radius:14px;padding:14px 16px;box-shadow:0 10px 24px rgba(0,0,0,.25)}
+  .step{display:flex;align-items:center;gap:10px;margin:0 0 12px}
+  .num{width:26px;height:26px;border-radius:50%;background:#212a3f;color:#ffe7b3;display:grid;place-items:center;font-weight:800}
+  input,select,textarea,button{width:100%;padding:10px;border-radius:10px;border:1px solid #2a3243;background:#0c0f14;color:var(--ink)}
+  textarea{min-height:120px;font-family:var(--mono);font-size:13px}
+  .list{display:grid;grid-template-columns:24px 1fr;align-items:center;row-gap:10px}
+  .list input{width:18px;height:18px;margin:0}
+  .btn{background:var(--accent);border:0;color:#0b0f18;font-weight:800;cursor:pointer;border-radius:10px;padding:10px;margin-top:8px}
+  .btn.sec{background:#20283a;color:#dbeafe;border:1px solid #2a3243}
+  .pill{display:inline-block;padding:5px 10px;border-radius:999px;border:1px solid #2a3243;background:#1a2230;color:#cfe0ff;font-size:12px;margin:2px}
+  .pill.green{background:#0f2e1b;border-color:#1e6b37;color:#86efac}
+  .items{display:grid;row-gap:10px}
+  .item{border:1px solid #263043;border-radius:10px;padding:12px}
+  .item.good{background:#0f1812;border-color:#214a30}
+  .item.bad{background:#1c1113;border-color:#5b2a30}
+  .item .ttl{font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .expl{font-size:14px;line-height:1.35}
+  .expl b{color:#dbeafe}
+  .out{white-space:pre-wrap;background:#0c0e13;border:1px dashed #2c2f3a;border-radius:12px;padding:10px;margin-top:10px}
+  .gitem{display:contents}
+  .hidden{display:none!important}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .box{border:1px solid #2b3953;border-radius:10px;padding:10px;background:#101725}
+  .box h4{margin:0 0 6px 0}
+  ul{margin:8px 0 0 18px;padding:0}
+  details{border:1px dashed #2c2f3a;border-radius:10px;padding:10px;margin-top:10px;overflow:hidden;transition:max-height .25s ease;max-height:60px}
+  details[open]{max-height:600px;overflow-y:auto}
+  details>summary{cursor:pointer;list-style:none;font-weight:700;display:flex;align-items:center;gap:8px}
+  details>summary .count{font-weight:700;color:#cfe0ff}
+  details>summary::-webkit-details-marker{display:none}
+  .qgrid{display:grid;grid-template-columns:24px 1fr;align-items:start;row-gap:10px}
+  .qgrid input{width:18px;height:18px;margin:0}
+  .subttl{margin:6px 0 2px 0;font-weight:800;color:#cfe0ff}
+  .topgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+  .tag-info{font-size:12px;color:var(--muted);margin-top:6px;display:flex;gap:6px;flex-wrap:wrap}
+  .tag-badge{background:#1a2230;color:#93c5fd;padding:3px 8px;border-radius:6px;border:1px solid #2a3243}
+  @media (max-width:1100px){ .topgrid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class='wrap'>
+  <div class='header-row'>
+    <h1>Инструктор FastCheck by Изгой <span class='ver'>v5.0 Auto</span></h1>
+    <div style='display:flex;align-items:center;gap:8px'>
+      <span id='dbStatus' class='pill'>База: загрузка...</span>
+      <button class='btn sec' style='margin:0;padding:6px 12px;font-size:13px;width:auto' onclick='openApiSettings()'>⚙️ API</button>
+      <button class='btn sec' style='margin:0;padding:6px 12px;font-size:13px;width:auto' onclick='syncWithAPI(true)'>🔄</button>
+    </div>
+  </div>
+
+  <div class='topgrid'>
+    <section class='card'>
+      <div class='step'><div class='num'>HB</div><h3>Head Blend - проверка по правилам</h3></div>
+      <textarea id='json' placeholder='Вставьте Барбер-данные (только блок headBlend)'></textarea>
+      <div style='display:flex;gap:8px;margin-top:8px'>
+        <button class='btn' onclick='checkHB()'>Проверить</button>
+        <button class='btn sec' onclick='ex()'>Вставить пример</button>
+      </div>
+      <div id='hbSummary' style='margin-top:8px'></div>
+      <div id='hbList' class='items' style='margin-top:8px'></div>
+      <details>
+        <summary>🛈 Пояснение к барбер‑данным (раскрыть)</summary>
+        <div class='muted'>
+          <p><b>Правила:</b><br>
+          <code>shapeFirstId / shapeSecondId / shapeThirdId</code> — не 0 и не 44, не повторяются;<br>
+          <code>shapeMix</code> — 20–80; <code>thirdMix</code> — 15–75; в вкладке headBlend/skin нулей быть не должно.</p>
+          <p><b>Что что означает:</b></p>
+          <ul>
+            <li><code>shapeFirstId</code> - лицо первого родителя</li>
+            <li><code>shapeSecondId</code> - лицо второго родителя</li>
+            <li><code>shapeThirdId</code> - форма лица предка</li>
+            <li><code>shapeMix</code> - микс лица родителей</li>
+            <li><code>thirdMix</code> - микс лица предков</li>
+            <li><code>skinFirstId</code> - цвет кожи первого родителя</li>
+            <li><code>skinSecondId</code> - цвет кожи второго родителя</li>
+            <li><code>skinThirdId</code> - цвет кожи предка</li>
+            <li><code>skinMix</code> - микс цвета кожи</li>
+          </ul>
+        </div>
+      </details>
+    </section>
+
+    <section class='card'>
+      <div class='step'><div class='num'>PL</div><h3>Данные игрока</h3></div>
+      <input id='pid' placeholder='ID игрока (например: 1094)' style='margin-bottom:8px' oninput='handleIdSearch()'>
+      <input id='pname' placeholder='Имя Фамилия (паспорт)' style='margin-bottom:8px' oninput='buildFaces()'>
+      <select id='role' style='margin-bottom:8px'>
+        <option value=''>Роль не требуется</option>
+        <option value='human'>human</option>
+        <option value='animal'>animal</option>
+        <option value='capuchin'>capuchin</option>
+        <option value='ape'>ape</option>
+        <option value='orangutang'>orangutang</option>
+        <option value='gorilla'>gorilla</option>
+      </select>
+      <select id='age18'>
+        <option value=''>18+ неизвестно</option>
+        <option>18+ есть</option><option>18+ нет</option>
+      </select>
+      <div id='playerTagInfo' class='tag-info'></div>
+      <div style='display:flex;gap:8px;margin-top:10px'>
+        <button class='btn' onclick="buildFaces();copy('#facesOut')">#Avenger-faces</button>
+        <button class='btn sec' onclick='buildFaces()'>Сформировать</button>
+      </div>
+      <div id='facesOut' class='out'></div>
+    </section>
+
+    <section class='card'>
+      <div class='step'><div class='num'>Q</div><h3>Вопросы по выпуску</h3></div>
+
+      <details id='qHuman'>
+        <summary>👤 Вопросы игроку (Человек) <span class='count' id='c_human'></span></summary>
+        <div class='subttl'>Общие вопросы по правилам</div>
+        <div class='qgrid' style='margin-top:6px'>
+          <input type='checkbox' id='qh1'><label for='qh1'>Разрешена ли трансляция и публикация материалов общения с администрацией?</label>
+          <input type='checkbox' id='qh2'><label for='qh2'>Какие есть команды в игровом чате? /Do есть? Скобочки - когда уместны?</label>
+          <input type='checkbox' id='qh3'><label for='qh3'>Какие запретные зоны есть на острове?</label>
+          <input type='checkbox' id='qh4'><label for='qh4'>Что ты должен оставить человеку после ограбления? Как правильно отыгрывать? Сколько ждать ответа? Что делать, если твоего персонажа вырубили прикладом через /me?</label>
+          <input type='checkbox' id='qh5'><label for='qh5'>Сколько длится отыгрыш тяжёлых ранений у человека? Что нельзя делать во время пейна? Можно ли говорить в ноке?</label>
+          <input type='checkbox' id='qh6'><label for='qh6'>Как работает предупредительный выстрел?</label>
+          <input type='checkbox' id='qh7'><label for='qh7'>Что нельзя писать в /me чат?</label>
+          <input type='checkbox' id='qh8'><label for='qh8'>Сколько раз можно выстрелить из тазера в человека? Можно ли стрелять в альфа‑особь?</label>
+          <input type='checkbox' id='qh9'><label for='qh9'>Можно ли оставлять человека в стяжках или с мешком на голове после окончания РП‑ситуации?</label>
+          <input type='checkbox' id='qh10'><label for='qh10'>Сколько нужно людей, чтобы перетаскивать альфа‑особь?</label>
+          <input type='checkbox' id='qh11'><label for='qh11'>По каким признакам можно распознать рептилию/обезьяну?</label>
+          <input type='checkbox' id='qh12'><label for='qh12'>Нужно ли использовать анимации при разговоре по рации?</label>
+          <input type='checkbox' id='qh13'><label for='qh13'>Можно ли менять вещи или прятаться на базе сразу после крайм‑действий?</label>
+          <input type='checkbox' id='qh14'><label for='qh14'>Можно ли убить альфа‑особь на территории диких земель?</label>
+        </div>
+        <div class='subttl' style='margin-top:10px'>Краткий бриф перед прыжком</div>
+        <div class='qgrid' style='margin-top:6px'>
+          <input type='checkbox' id='qh15'><label for='qh15'>Что такое NON‑RP зона и где она заканчивается?</label>
+          <input type='checkbox' id='qh16'><label for='qh16'>Как раскрыть парашют (какие клавиши, можно ли комбинировать)?</label>
+          <input type='checkbox' id='qh17'><label for='qh17'>Можно ли использовать анимации во время полёта? Где нельзя приземляться?</label>
+          <input type='checkbox' id='qh18'><label for='qh18'>Что нажать перед приземлением? Что делать, если оказался в ноке?</label>
+          <input type='checkbox' id='qh19'><label for='qh19'>Где находится таблица биндов/анимаций (F11)? Как включить предпросмотр анимации ПКМ?</label>
+          <input type='checkbox' id='qh20'><label for='qh20'>Какие каналы Discord и когда использовать (Information, Call‑admin, Wait‑me)?</label>
+        </div>
+      </details>
+
+      <details id='qAnimals'>
+        <summary>🐾 Вопросы игроку (Животные) <span class='count' id='c_animals'></span></summary>
+        <div class='qgrid' style='margin-top:6px'>
+          <input type='checkbox' id='qa1'><label for='qa1'>Если на животное наставили оружие — может ли оно напасть? В каких случаях не может?</label>
+          <input type='checkbox' id='qa2'><label for='qa2'>Если ваш персонаж увидит альфа‑особь, угрожающую ему или его друзьям - может ли он атаковать? Как вести себя с альфами?</label>
+          <input type='checkbox' id='qa3'><label for='qa3'>Через сколько времени можно начать взаимодействовать с людьми?</label>
+          <input type='checkbox' id='qa4'><label for='qa4'>Могут ли животные чувствовать расовый хаб и места медитации?</label>
+        </div>
+      </details>
+
+      <details id='qMonkeys'>
+        <summary>🐒 Вопросы игроку (Обезьяны) <span class='count' id='c_monkeys'></span></summary>
+        <div class='qgrid' style='margin-top:6px'>
+          <input type='checkbox' id='qb1'><label for='qb1'>На какой день ваша обезьяна может понимать человеческую речь?</label>
+          <input type='checkbox' id='qb2'><label for='qb2'>Сколько слов можно выучить в первый день?</label>
+          <input type='checkbox' id='qb3'><label for='qb3'>На какой день ваш примат может начать обучаться математике и алфавиту и сколько это занимает?</label>
+          <input type='checkbox' id='qb4'><label for='qb4'>С какого дня ваш примат может начать самостоятельно обучаться и как это происходит?</label>
+          <input type='checkbox' id='qb5'><label for='qb5'>Сколько баллов у вашей обезьяны после выхода из леса и сколько будет через 4 недели отыгрыша?</label>
+          <input type='checkbox' id='qb6'><label for='qb6'>В каких случаях обезьяна вовсе не даёт баллов?</label>
+          <input type='checkbox' id='qb7'><label for='qb7'>Как вы можете поступить в случае, когда баллов перестало хватать?</label>
+          <input type='checkbox' id='qb8'><label for='qb8'>Можно ли коверкать слова в /ani‑чат?</label>
+          <input type='checkbox' id='qb9'><label for='qb9'>До какого уровня может развиться разум примата?</label>
+          <input type='checkbox' id='qb10'><label for='qb10'>По каким признакам можно опознать обезьяну, чтобы утверждать, что это именно она?</label>
+          <input type='checkbox' id='qb11'><label for='qb11'>Кого и как можете переносить (в зависимости от вида обезьяны)?</label>
+          <input type='checkbox' id='qb12'><label for='qb12'>Какими видами оружия можете пользоваться (в зависимости от вида обезьяны)?</label>
+        </div>
+      </details>
+
+    </section>
+  </div>
+
+  <section class='card' style='margin-bottom:14px'>
+    <div class='step'><div class='num'>2</div><h3>Одежда и внешний вид (ручная оценка)</h3></div>
+    <div class='list'>
+      <input type='checkbox' id='clothesOk'><label for='clothesOk'>Повседневная одежда (не военка/не чрезмерная грязь)</label>
+      <input type='checkbox' id='noHoles'><label for='noHoles'>Нет “дырок” / конфликтов слотов (попроси поднять руки)</label>
+      <input type='checkbox' id='hairOk'><label for='hairOk'>Волосы допустимых оттенков, натуральный цвет зафиксирован</label>
+      <input type='checkbox' id='uniqueFace'><label for='uniqueFace'>Не совпадает с уже выпущенными (галерея проверена)</label>
+    </div>
+    <textarea id='notes' placeholder='Замечания по одежде/аксессуарам (если есть)' style='margin-top:12px'></textarea>
+  </section>
+
+  <section class='card' style='margin-bottom:14px'>
+    <div class='step'><div class='num'>3</div><h3>Орг‑моменты</h3></div>
+    <div class='list'>
+      <input type='checkbox' id='om1'><label for='om1'>Проверить знание правил</label>
+      <input type='checkbox' id='om2'><label for='om2'>Скрин сделан (поза), очки/маски сняты</label>
+      <input type='checkbox' id='om3'><label for='om3'>Бриф перед прыжком</label>
+      <input type='checkbox' id='om4'><label for='om4'>CoolDown снят (.cdr)</label>
+    </div>
+  </section>
+
+  <section class='card' style='margin-bottom:14px'>
+    <div class='step'><div class='num'>4</div><h3>Гайд по выпуску (фильтруется по роли)</h3></div>
+
+    <div class='gitem' data-cat='human'>
+      <div class='box' style='margin-bottom:10px'>
+        <h4>Человек — что сделать</h4>
+        <ul>
+          <li>Собеседование: отойти в сторону, войс на шёпот (P → 1). Только для самого первого персонажа.</li>
+          <li>Фото: поза «Важный», без очков/масок; пост в #Avenger-faces: «Имя Фамилия | ID».</li>
+          <li>Паспорт: имя, фамилия, возраст; при 18+ - <b>*</b> перед именем; после смены ника — написать что-то в /me.</li>
+          <li>Discord: #whitelist (30 мин, 1 использование), объяснить Information, Call‑admin, Wait‑me.</li>
+          <li>Инструктаж: Авенджер — последняя NON‑RP зона; парашют ЛКМ или F; без анимаций; не на территории группировок; перед приземлением - SHIFT; в ноке - тикет.</li>
+          <li>F11 — таблица биндов/анимаций; у человека есть бумажная карта (ESC).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class='gitem' data-cat='beast'>
+      <div class='box' style='margin-bottom:10px'>
+        <h4>Животные/обезьяны — что сделать</h4>
+        <ul>
+          <li>Фото: сидячая/уместная поза, без очков/масок; пост в #Avenger-faces: «Имя | ID».</li>
+          <li>Паспорт: фамилия «???» или 3 пробела (по правилам проекта).</li>
+          <li>Роли: выдать нужную — animal / capuchin / ape / orangutang / gorilla.</li>
+          <li>Карта: у животных карты нет; обезьянам — получить РП‑путём.</li>
+          <li>Нож/топор: не выдаём; у обезьян нож — РП‑добыча.</li>
+        </ul>
+      </div>
+
+      <div class='two-col'>
+        <div class='box'>
+          <h4>У животных забираем:</h4>
+          <ul>
+            <li>Парашют</li><li>Топор и нож</li><li>Спальник</li><li>Набор для розжига костра</li><li>НЭП</li><li>Сигнальный пистолет</li><li>Фильтр для воды</li>
+          </ul>
+        </div>
+        <div class='box'>
+          <h4>У обезьян забираем:</h4>
+          <ul>
+            <li>Парашют</li><li>Топор</li><li>Спальник</li><li>Набор для розжига костра</li><li>НЭП</li><li>Сигнальный пистолет</li><li>Фильтр для воды</li>
+          </ul>
+          <div class='muted' style='margin-top:6px'>Нож — РП‑добыча после выпуска.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+// ===== Helpers: localStorage & counters
+const LS_PREFIX = 'fastcheck_v48_';
+
+function saveCheck(id, checked){ try{ localStorage.setItem(LS_PREFIX+id, checked ? '1':'0'); }catch(e){} }
+function loadCheck(id){ try{ return localStorage.getItem(LS_PREFIX+id) === '1'; }catch(e){ return false; } }
+
+function updateCount(detailsId, counterId){
+  const box = document.getElementById(detailsId);
+  if (!box) return;
+  const all = box.querySelectorAll("input[type='checkbox']");
+  const mark = box.querySelectorAll("input[type='checkbox']:checked");
+  const c = document.getElementById(counterId);
+  if (c) c.textContent = `✔ ${mark.length} / ${all.length}`;
+}
+
+function wireCheckboxes(){
+  document.querySelectorAll("details input[type='checkbox']").forEach(ch => {
+    const id = ch.id;
+    ch.checked = loadCheck(id);
+    ch.addEventListener('change', () => {
+      saveCheck(id, ch.checked);
+      updateCount('qHuman','c_human');
+      updateCount('qAnimals','c_animals');
+      updateCount('qMonkeys','c_monkeys');
+    });
+  });
+  updateCount('qHuman','c_human');
+  updateCount('qAnimals','c_animals');
+  updateCount('qMonkeys','c_monkeys');
+}
+
+// ===== Role filter & guide
+function roleCategory(){
+  const v = (document.getElementById('role').value||'').trim().toLowerCase();
+  if (v === 'human') return 'human';
+  if (!v) return 'all';
+  if (['capuchin','ape','orangutang','gorilla'].includes(v)) return 'monkey';
+  return 'animal';
+}
+
+function applyRoleFilter(){
+  const cat = roleCategory();
+  const qh = document.getElementById('qHuman');
+  const qa = document.getElementById('qAnimals');
+  const qm = document.getElementById('qMonkeys');
+  if (cat === 'human' && qh){ qh.open = true; if(qa) qa.open = false; if(qm) qm.open=false; }
+  if (cat === 'animal' && qa){ qa.open = true; if(qh) qh.open = false; if(qm) qm.open=false; }
+  if (cat === 'monkey' && qm){ qm.open = true; if(qh) qh.open=false; if(qa) qa.open=false; }
+
+  // фильтрация блока 4 (гайд)
+  document.querySelectorAll('.gitem').forEach(el => {
+    const gCat = el.getAttribute('data-cat');
+    if (cat === 'human') {
+      el.classList.toggle('hidden', gCat !== 'human');
+    } else if (cat === 'animal' || cat === 'monkey') {
+      el.classList.toggle('hidden', gCat !== 'beast');
+    } else {
+      el.classList.remove('hidden');
+    }
+  });
+}
+
+document.getElementById('role').addEventListener('change', ()=>{ applyRoleFilter(); buildFaces(); });
+document.getElementById('age18').addEventListener('change', ()=>{ buildFaces(); });
+
+// ===== HB checker
+function ex(){
+  const sample = {'headBlend':{'shapeFirstId':19,'shapeSecondId':85,'shapeThirdId':75,'shapeMix':65,'thirdMix':35,'skinFirstId':3,'skinSecondId':6,'skinThirdId':9,'skinMix':50}};
+  document.getElementById('json').value = JSON.stringify(sample, null, 2);
+  checkHB();
+}
+function pill(text){ return '<span class="pill">'+text+'</span>'; }
+function ruleCard(ok, title, want, now, why){
+  const cls = ok ? 'good' : 'bad';
+  const icon = ok ? '✅' : '❌';
+  return '<div class="item '+cls+'">'
+    +'<div class="ttl">'+icon+' '+title+'</div>'
+    +'<div class="expl"><b>Как должно быть:</b> '+want+'</div>'
+    +'<div class="expl"><b>Сейчас:</b> '+now+'</div>'
+    +'<div class="expl"><b>Вывод:</b> '+(ok ? 'Всё в норме.' : why)+'</div>'
+    +'</div>';
+}
+function checkHB(){
+  const sum = document.getElementById('hbSummary');
+  const list = document.getElementById('hbList');
+  sum.innerHTML = ''; 
+  list.innerHTML = '';
+  
+  let raw = document.getElementById('json').value.trim();
+  let data;
+  try {
+    const match = raw.match(/\{[\s\S]*\}/);
+    if (match) raw = match[0];
+    data = JSON.parse(raw);
+  } catch(e) {
+    list.innerHTML = ruleCard(false, 'JSON не разобран', 'Вставьте корректный JSON с блоком headBlend', 'ошибка: ' + e.message, 'Скопируйте данные из Барбершопа заново.');
+    return;
+  }
+
+  const hb = data.headBlend || data || {};
+  const a = hb.shapeFirstId;
+  const b = hb.shapeSecondId;
+  const c = hb.shapeThirdId;
+  const sm = hb.shapeMix;
+  const tm = hb.thirdMix;
+
+  const ids = [a, b, c];
+  const idNames = ['shapeFirstId', 'shapeSecondId', 'shapeThirdId'];
+  let pass = 0;
+  const total = 4;
+
+  // 1. Проверка ID лиц (не 0, не 44, не повторяются)
+  const missing = ids.some(v => typeof v !== 'number');
+  const zeros = idNames.filter((n, i) => ids[i] === 0);
+  const fortyfour = idNames.filter((n, i) => ids[i] === 44);
+  const dup = (new Set(ids)).size !== ids.length;
+  const idsOk = !missing && zeros.length === 0 && fortyfour.length === 0 && !dup;
+  if (idsOk) pass++;
+
+  let nowIds = `shapeFirstId=${a}, shapeSecondId=${b}, shapeThirdId=${c}`;
+  let whyIds = [];
+  if (missing) whyIds.push('есть пустые значения');
+  if (zeros.length) whyIds.push('значение 0 в: ' + zeros.join(', '));
+  if (fortyfour.length) whyIds.push('значение 44 в: ' + fortyfour.join(', '));
+  if (dup) whyIds.push('ID лиц повторяются');
+
+  list.innerHTML += ruleCard(
+    idsOk, 
+    'ID лиц (shapeFirst/Second/Third)', 
+    'Все 3 лица заданы, ≠ 0 и ≠ 44, без повторов', 
+    nowIds, 
+    whyIds.join('; ') || 'Проверьте значения'
+  );
+
+  // 2. shapeMix: от 20 до 80
+  const smOk = typeof sm === 'number' && sm >= 20 && sm <= 80;
+  if (smOk) pass++;
+  list.innerHTML += ruleCard(
+    smOk, 
+    'shapeMix (микс лица родителей)', 
+    'От 20 до 80', 
+    `shapeMix = ${sm}`, 
+    'Вне диапазона — выставить от 20 до 80'
+  );
+
+  // 3. thirdMix: от 15 до 75
+  const tmOk = typeof tm === 'number' && tm >= 15 && tm <= 75;
+  if (tmOk) pass++;
+  list.innerHTML += ruleCard(
+    tmOk, 
+    'thirdMix (микс лица предков)', 
+    'От 15 до 75', 
+    `thirdMix = ${tm}`, 
+    'Вне диапазона — выставить от 15 до 75'
+  );
+
+  // 4. Проверка нулей в форме лица
+  const shapeFields = ['shapeFirstId', 'shapeSecondId', 'shapeThirdId', 'shapeMix', 'thirdMix'];
+  const zeroFields = shapeFields.filter(k => hb[k] === 0);
+  const zerosOk = zeroFields.length === 0;
+  if (zerosOk) pass++;
+  list.innerHTML += ruleCard(
+    zerosOk, 
+    'Нули в форме лица (HeadBlend)', 
+    'В параметрах формы лица не должно быть нулей', 
+    zeroFields.length ? 'Нули в: ' + zeroFields.join(', ') : 'Нулей нет', 
+    'Нули означают несохранённые слайды — нужно применить изменения в игре'
+  );
+
+  sum.innerHTML = pill(`Пройдено ${pass}/${total}`) + pill(`shapeMix=${sm}`) + pill(`thirdMix=${tm}`);
+}
+
+function buildFaces(){
+  const id=(document.getElementById('pid').value||'????').trim();
+  let name=(document.getElementById('pname').value||'Имя Фамилия').trim();
+  const age=(document.getElementById('age18').value||'').trim();
+  if(age==='18+ есть'&&!name.startsWith('*')) name='*'+name;
+  document.getElementById('facesOut').textContent=name+' | ID '+id;
+}
+
+async function copy(sel){
+  try{
+    await navigator.clipboard.writeText(document.querySelector(sel).textContent);
+  }catch(e){
+    alert('Не удалось скопировать');
+  }
+}
+
+// ==================== АВТО-СИНХРОНИЗАЦИЯ С GOOGLE SHEETS ====================
+let API_URL = localStorage.getItem('fc_api_url') || 'https://script.google.com/macros/s/AKfycbx71wCcEa11vH_VKse4i66hGvJ1KzdQVD4T-u2aiqkssPdw6S-CNhCoWsARjHTUdLbsKQ/exec';
+let cachedDatabase = JSON.parse(localStorage.getItem('fc_cached_db') || '{"humans":{}, "animals":{}}');
+
+function openApiSettings(){
+  const cur = localStorage.getItem('fc_api_url') || API_URL;
+  const val = prompt('Вставьте ссылку на ваш Web App скрипт (Google Apps Script):', cur);
+  if(val !== null && val.trim()){
+    localStorage.setItem('fc_api_url', val.trim());
+    API_URL = val.trim();
+    syncWithAPI(true);
+  }
+}
+
+async function syncWithAPI(manual = false){
+  const statusEl = document.getElementById('dbStatus');
+  if(statusEl) statusEl.textContent = 'База: загрузка...';
+
+  try {
+    const resp = await fetch(API_URL, { method: 'GET', mode: 'cors', redirect: 'follow' });
+    const data = await resp.json();
+
+    if(data && data.humans){
+      cachedDatabase = data;
+      localStorage.setItem('fc_cached_db', JSON.stringify(data));
+      updateDbStatus();
+      if(manual) alert(`База обновлена! Загружено квент: ${Object.keys(data.humans).length + Object.keys(data.animals).length}`);
+    }
+  } catch(err) {
+    console.error('Ошибка авто-синхронизации:', err);
+    if(statusEl) statusEl.innerHTML = `<span style="color:var(--bad)">База: ошибка API</span>`;
+    if(manual) alert('Ошибка загрузки API. Проверьте ссылку в настройках ⚙️');
+  }
+}
+
+function updateDbStatus(){
+  const hCount = Object.keys(cachedDatabase.humans || {}).length;
+  const aCount = Object.keys(cachedDatabase.animals || {}).length;
+  const total = hCount + aCount;
+  const el = document.getElementById('dbStatus');
+  if(el){
+    if(total > 0){
+      el.className = 'pill green';
+      el.textContent = `База: ${total} (👤 ${hCount} | 🐾 ${aCount})`;
+    } else {
+      el.className = 'pill';
+      el.textContent = 'База: пуста';
+    }
+  }
+}
+
+// ==================== АВТО-ПОИСК ПО ID ====================
+function handleIdSearch(){
+  const id = document.getElementById('pid').value.trim();
+  const infoEl = document.getElementById('playerTagInfo');
+  
+  if(!id){
+    if(infoEl) infoEl.innerHTML = '';
+    buildFaces();
+    return;
+  }
+
+  // 1. Поиск среди людей
+  if(cachedDatabase.humans && cachedDatabase.humans[id]){
+    const p = cachedDatabase.humans[id];
+    document.getElementById('pname').value = p.name;
+    document.getElementById('role').value = 'human';
+    if(infoEl) infoEl.innerHTML = `<span class="tag-badge">Discord: ${p.tag}</span> <span class="tag-badge">Откуда: ${p.from || 'Не указано'}</span>`;
+    applyRoleFilter();
+    buildFaces();
+    return;
+  }
+
+  // 2. Поиск среди животных и обезьян
+  if(cachedDatabase.animals && cachedDatabase.animals[id]){
+    const p = cachedDatabase.animals[id];
+    document.getElementById('pname').value = p.name;
+    
+    const lowName = p.name.toLowerCase();
+    if(lowName.includes('горилла') || lowName.includes('gorilla')) document.getElementById('role').value = 'gorilla';
+    else if(lowName.includes('орангутанг') || lowName.includes('orangutang')) document.getElementById('role').value = 'orangutang';
+    else if(lowName.includes('капуцин') || lowName.includes('capuchin')) document.getElementById('role').value = 'capuchin';
+    else if(lowName.includes('обезьян') || lowName.includes('примат') || lowName.includes('ape')) document.getElementById('role').value = 'ape';
+    else document.getElementById('role').value = 'animal';
+
+    if(infoEl) infoEl.innerHTML = `<span class="tag-badge">Discord: ${p.tag}</span> <span class="tag-badge" style="color:#fca5a5">🐾 Животное/Примат</span>`;
+    applyRoleFilter();
+    buildFaces();
+    return;
+  }
+
+  if(infoEl) infoEl.innerHTML = `<span style="color:var(--muted)">В базе нет (ручной ввод)</span>`;
+  buildFaces();
+}
+
+// ==================== СТАРТ ====================
+document.addEventListener('DOMContentLoaded', ()=>{
+  applyRoleFilter();
+  wireCheckboxes();
+  updateDbStatus();
+  if(API_URL && API_URL.includes('script.google.com')){
+    syncWithAPI(false);
+  }
+});
+</script>
+</body>
+</html>
