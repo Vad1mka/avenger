@@ -437,7 +437,7 @@ function buildFaces(){
   let name=(document.getElementById('pname').value||'Имя Фамилия').trim();
   const age=(document.getElementById('age18').value||'').trim();
   if(age==='18+ есть'&&!name.startsWith('*')) name='*'+name;
-  document.getElementById('facesOut').textContent=name+' | ID '+id;
+  document.getElementById('facesOut').textContent=name+' | '+id;
 }
 
 async function copy(sel){
