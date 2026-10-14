@@ -547,34 +547,34 @@ function handleIdSearch(){
 const DC_SERVER_ID = "320325446342279168"; 
 const DC_CHANNEL_ID = "1197788579494121472"; 
 
-async function openDiscordAndCopy() {
+function openDiscordAndCopy() {
   buildFaces(); // формируем строку
   
   const text = document.getElementById('facesOut').textContent.trim();
   if (!text || text.includes('????')) {
-    alert('Сначала введите корректный ID игрока!');
+    alert('Сначала введите ID игрока!');
     return;
   }
 
-  // 1. Надёжное копирование в буфер обмена
-  try {
-    if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(text);
-    } else {
-      // Запасной вариант (если файл открыт локально)
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-    }
-  } catch(e) {
-    console.error('Ошибка копирования:', e);
-  }
+  // 1. Быстрое синхронное копирование (без задержек, чтобы браузер не блокировал переход)
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.left = '-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
 
-  // 2. Открываем приложение Discord на нужном канале
-  window.location.href = `discord://-/channels/${DC_SERVER_ID}/${DC_CHANNEL_ID}`;
+  // 2. Создаем клик по ссылке приложения Discord
+  const appUrl = `discord://discord.com/channels/${DC_SERVER_ID}/${DC_CHANNEL_ID}`;
+  
+  // Создаем виртуальную ссылку и нажимаем её
+  const link = document.createElement('a');
+  link.href = appUrl;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
   
 // ==================== СТАРТ ====================
