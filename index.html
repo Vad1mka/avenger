@@ -119,7 +119,7 @@
       </select>
       <div id='playerTagInfo' class='tag-info'></div>
       <div style='display:flex;gap:8px;margin-top:10px'>
-        <button class='btn' onclick="buildFaces();copy('#facesOut')">#Avenger-faces</button>
+        <button class='btn' onclick="openDiscordAndCopy()">#Avenger-faces</button>
         <button class='btn sec' onclick='buildFaces()'>Сформировать</button>
       </div>
       <div id='facesOut' class='out'></div>
@@ -551,6 +551,29 @@ document.addEventListener('DOMContentLoaded', ()=>{
   if(API_URL && API_URL.includes('script.google.com')){
     syncWithAPI(false);
   }
+  // Вставьте сюда ваши цифры из скопированной ссылки на канал:
+const DC_SERVER_ID = "320325446342279168"; // первое число
+const DC_CHANNEL_ID = "1197788579494121472"; // второе число
+
+async function openDiscordAndCopy() {
+  buildFaces(); // генерирует строку "Имя | ID"
+  
+  const text = document.getElementById('facesOut').textContent.trim();
+  if (!text || text.includes('????')) {
+    alert('Сначала введите ID игрока!');
+    return;
+  }
+
+  // 1. Копируем результат в буфер обмена
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch(e) {
+    console.warn('Не удалось скопировать автоматически:', e);
+  }
+
+  // 2. Мгновенно открываем приложение Discord прямо на нужном канале
+  window.location.href = `discord://-/channels/${DC_SERVER_ID}/${DC_CHANNEL_ID}`;
+}
 });
 </script>
 </body>
