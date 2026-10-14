@@ -119,8 +119,10 @@
       </select>
       <div id='playerTagInfo' class='tag-info'></div>
       <div style='display:flex;gap:8px;margin-top:10px'>
-        <button class='btn' onclick="buildFaces();copy('#facesOut')">#Avenger-faces</button>
-        <button class='btn sec' onclick='buildFaces()'>Сформировать</button>
+<div style='display:flex;gap:8px;margin-top:10px'>
+  <a id='dcBtn' href='discord://-/channels/320325446342279168/1197788579494121472' class='btn' style='flex:1;margin:0;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;white-space:nowrap;font-size:14px;padding:9px 6px' onclick='handleDiscordClick(event)'>#Avenger-faces</a>
+  <button class='btn sec' style='flex:1;margin:0;white-space:nowrap;font-size:14px;padding:9px 6px' onclick='buildFaces()'>Сформировать</button>
+</div>
       </div>
       <div id='facesOut' class='out'></div>
     </section>
@@ -544,19 +546,17 @@ function handleIdSearch(){
 }
 
 // ==================== DISCORD ПЕРЕХОД И КОПИРОВАНИЕ ====================
-const DC_SERVER_ID = "320325446342279168"; 
-const DC_CHANNEL_ID = "1197788579494121472"; 
-
-function openDiscordAndCopy() {
+function handleDiscordClick(e) {
   buildFaces(); // формируем строку
   
   const text = document.getElementById('facesOut').textContent.trim();
   if (!text || text.includes('????')) {
+    e.preventDefault(); // отменяем переход, если ID не заполнен
     alert('Сначала введите ID игрока!');
     return;
   }
 
-  // 1. Быстрое синхронное копирование (без задержек, чтобы браузер не блокировал переход)
+  // 1. Копируем текст в буфер обмена
   const ta = document.createElement('textarea');
   ta.value = text;
   ta.style.position = 'fixed';
@@ -566,15 +566,7 @@ function openDiscordAndCopy() {
   document.execCommand('copy');
   document.body.removeChild(ta);
 
-  // 2. Создаем клик по ссылке приложения Discord
-  const appUrl = `discord://discord.com/channels/${DC_SERVER_ID}/${DC_CHANNEL_ID}`;
-  
-  // Создаем виртуальную ссылку и нажимаем её
-  const link = document.createElement('a');
-  link.href = appUrl;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  // Мы НЕ отменяем переход (нет e.preventDefault) — браузер сам физически передает команду Windows открыть приложение Discord!
 }
   
 // ==================== СТАРТ ====================
