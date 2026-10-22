@@ -26,6 +26,7 @@
   .list input{width:18px;height:18px;margin:0}
   .btn{background:var(--accent);border:0;color:#0b0f18;font-weight:800;cursor:pointer;border-radius:10px;padding:10px;margin-top:8px}
   .btn.sec{background:#20283a;color:#dbeafe;border:1px solid #2a3243}
+  .btn.blue{background:#1d4ed8;color:#eff6ff;border:1px solid #2563eb}
   .pill{display:inline-block;padding:5px 10px;border-radius:999px;border:1px solid #2a3243;background:#1a2230;color:#cfe0ff;font-size:12px;margin:2px}
   .pill.green{background:#0f2e1b;border-color:#1e6b37;color:#86efac}
   .items{display:grid;row-gap:10px}
@@ -53,6 +54,8 @@
   .topgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
   .tag-info{font-size:12px;color:var(--muted);margin-top:6px;display:flex;gap:6px;flex-wrap:wrap}
   .tag-badge{background:#1a2230;color:#93c5fd;padding:3px 8px;border-radius:6px;border:1px solid #2a3243}
+  .discord-bar{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+  .discord-bar button, .discord-bar a{flex:1;min-width:130px;margin:0;font-size:13px;padding:8px 6px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
   @media (max-width:1100px){ .topgrid{grid-template-columns:1fr;} }
 </style>
 </head>
@@ -69,6 +72,7 @@
   </div>
 
   <div class='topgrid'>
+    <!-- БЛОК 1: HEAD BLEND -->
     <section class='card'>
       <div class='step'><div class='num'>HB</div><h3>Head Blend - проверка по правилам</h3></div>
       <textarea id='json' placeholder='Вставьте Барбер-данные (только блок headBlend)'></textarea>
@@ -84,7 +88,7 @@
           <p><b>Правила:</b><br>
           <code>shapeFirstId / shapeSecondId / shapeThirdId</code> — не 0 и не 44, не повторяются;<br>
           <code>shapeMix</code> — 20–80; <code>thirdMix</code> — 15–75; в вкладке headBlend/skin нулей быть не должно.</p>
-          <p><b>Что что означает:</b></p>
+          <p><b>Что означает:</b></p>
           <ul>
             <li><code>shapeFirstId</code> - лицо первого родителя</li>
             <li><code>shapeSecondId</code> - лицо второго родителя</li>
@@ -100,33 +104,50 @@
       </details>
     </section>
 
+    <!-- БЛОК 2: ДАННЫЕ ИГРОКА И DISCORD-ДЕЙСТВИЯ -->
     <section class='card'>
-      <div class='step'><div class='num'>PL</div><h3>Данные игрока</h3></div>
+      <div class='step'><div class='num'>PL</div><h3>Данные игрока & Discord</h3></div>
       <input id='pid' placeholder='ID игрока (например: 1094)' style='margin-bottom:8px' oninput='handleIdSearch()'>
       <input id='pname' placeholder='Имя Фамилия (паспорт)' style='margin-bottom:8px' oninput='buildFaces()'>
-      <select id='role' style='margin-bottom:8px'>
-        <option value=''>Роль не требуется</option>
-        <option value='human'>human</option>
-        <option value='animal'>animal</option>
-        <option value='capuchin'>capuchin</option>
-        <option value='ape'>ape</option>
-        <option value='orangutang'>orangutang</option>
-        <option value='gorilla'>gorilla</option>
-      </select>
-      <select id='age18'>
-        <option value=''>18+ неизвестно</option>
-        <option>18+ есть</option><option>18+ нет</option>
-      </select>
-      <div id='playerTagInfo' class='tag-info'></div>
-      <div style='display:flex;gap:8px;margin-top:10px'>
-<div style='display:flex;gap:8px;margin-top:10px'>
-  <a id='dcBtn' href='discord://-/channels/320325446342279168/1197788579494121472' class='btn' style='flex:1;margin:0;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;white-space:nowrap;font-size:14px;padding:9px 6px' onclick='handleDiscordClick(event)'>#Avenger-faces</a>
-  <button class='btn sec' style='flex:1;margin:0;white-space:nowrap;font-size:14px;padding:9px 6px' onclick='buildFaces()'>Сформировать</button>
-</div>
+      
+      <div style='display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px'>
+        <select id='role' style='margin:0'>
+          <option value=''>Роль не требуется</option>
+          <option value='human'>human</option>
+          <option value='animal'>animal</option>
+          <option value='capuchin'>capuchin</option>
+          <option value='ape'>ape</option>
+          <option value='orangutang'>orangutang</option>
+          <option value='gorilla'>gorilla</option>
+        </select>
+        <select id='age18' style='margin:0'>
+          <option value=''>18+ неизвестно</option>
+          <option>18+ есть</option>
+          <option>18+ нет</option>
+        </select>
       </div>
+
+      <input id='hairColor' placeholder='Натуральный цвет волос (если окрашены)' style='margin-bottom:8px' oninput='buildFaces()'>
+      <input id='customDcId' placeholder='Discord ID (для .cdr и 18+, если нет в базе)' style='margin-bottom:8px'>
+
+      <div id='playerTagInfo' class='tag-info'></div>
+
+      <!-- Действия по каналу #avenger (CoolDown и 18+) -->
+      <div class='discord-bar'>
+        <button class='btn sec' title='Скопировать .cdr <@ID> и открыть #avenger' onclick='actionCdr()'>⚡ Снять CoolDown</button>
+        <button class='btn sec' title='Скопировать запрос роли 18+ и открыть #avenger' onclick='actionReq18()'>🔞 Запрос 18+</button>
+      </div>
+
+      <!-- Действие по каналу #Avenger-faces -->
+      <div class='discord-bar'>
+        <button class='btn' title='Скопировать подпись и открыть #Avenger-faces' onclick='actionFaces()'>📸 #Avenger-faces</button>
+        <button class='btn sec' onclick='buildFaces()'>Обновить строку</button>
+      </div>
+
       <div id='facesOut' class='out'></div>
     </section>
 
+    <!-- БЛОК 3: ВОПРОСЫ ПО ВЫПУСКУ -->
     <section class='card'>
       <div class='step'><div class='num'>Q</div><h3>Вопросы по выпуску</h3></div>
 
@@ -187,7 +208,6 @@
           <input type='checkbox' id='qb12'><label for='qb12'>Какими видами оружия можете пользоваться (в зависимости от вида обезьяны)?</label>
         </div>
       </details>
-
     </section>
   </div>
 
@@ -203,12 +223,18 @@
   </section>
 
   <section class='card' style='margin-bottom:14px'>
-    <div class='step'><div class='num'>3</div><h3>Орг‑моменты</h3></div>
+    <div class='step'><div class='num'>3</div><h3>Орг‑моменты и завершение выпуска</h3></div>
     <div class='list'>
-      <input type='checkbox' id='om1'><label for='om1'>Проверить знание правил</label>
+      <input type='checkbox' id='om1'><label for='om1'>Проверить знание правил (только новичкам)</label>
       <input type='checkbox' id='om2'><label for='om2'>Скрин сделан (поза), очки/маски сняты</label>
-      <input type='checkbox' id='om3'><label for='om3'>Бриф перед прыжком</label>
+      <input type='checkbox' id='om3'><label for='om3'>Бриф перед прыжком (сохранить одежду в рюкзак, F11, парашют)</label>
       <input type='checkbox' id='om4'><label for='om4'>CoolDown снят (.cdr)</label>
+    </div>
+
+    <!-- Запись в #admin-log после прыжка -->
+    <div style='margin-top:14px;padding-top:12px;border-top:1px dashed var(--br);display:flex;gap:8px;align-items:center;flex-wrap:wrap'>
+      <input id='helperTag' placeholder='Тег помощника (например: @Ник / ft), если помогал' style='flex:2;min-width:220px'>
+      <button class='btn blue' style='flex:1;min-width:180px;margin:0' onclick='actionAdminLog()'>🚀 Отпись в #admin-log</button>
     </div>
   </section>
 
@@ -223,7 +249,7 @@
           <li>Фото: поза «Важный», без очков/масок; пост в #Avenger-faces: «Имя Фамилия | ID».</li>
           <li>Паспорт: имя, фамилия, возраст; при 18+ - <b>*</b> перед именем; после смены ника — написать что-то в /me.</li>
           <li>Discord: #whitelist (30 мин, 1 использование), объяснить Information, Call‑admin, Wait‑me.</li>
-          <li>Инструктаж: Авенджер — последняя NON‑RP зона; парашют ЛКМ или F; без анимаций; не на территории группировок; перед приземлением - SHIFT; в ноке - тикет.</li>
+          <li>Инструктаж: сохранить комплект в рюкзак; Авенджер — последняя NON‑RP зона; парашют ЛКМ или F; без анимаций; не на территории группировок; перед приземлением - SHIFT; в ноке - тикет.</li>
           <li>F11 — таблица биндов/анимаций; у человека есть бумажная карта (ESC).</li>
         </ul>
       </div>
@@ -258,16 +284,118 @@
       </div>
     </div>
   </section>
-
 </div>
 
 <script>
-// ===== Helpers: localStorage & counters
-const LS_PREFIX = 'fastcheck_v48_';
+// ==================== DISCORD КОНФИГУРАЦИЯ ====================
+const GUILD_ID = '320325446342279168';
+const CH_FACES = '1197788579494121472'; // #Avenger-faces
+const CH_AVENGER = '1071784599006478407'; // #avenger (.cdr, 18+)
+const CH_ADMINLOG = '648358700116869130'; // #admin-log
 
-function saveCheck(id, checked){ try{ localStorage.setItem(LS_PREFIX+id, checked ? '1':'0'); }catch(e){} }
-function loadCheck(id){ try{ return localStorage.getItem(LS_PREFIX+id) === '1'; }catch(e){ return false; } }
+// Быстрый переход и копирование
+async function copyAndOpenDiscord(channelId, text) {
+  if (!text) return;
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text);
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+  } catch (err) {
+    console.error('Ошибка буфера:', err);
+  }
+  // Переход по протоколу discord://
+  window.location.href = `discord://-/channels/${GUILD_ID}/${channelId}`;
+}
 
+// Получение Discord ID игрока (из базы или вспомогательного поля)
+function resolveDiscordId() {
+  const custom = document.getElementById('customDcId').value.trim();
+  if (custom) {
+    const m = custom.match(/\d{16,21}/);
+    return m ? m[0] : custom;
+  }
+  const id = document.getElementById('pid').value.trim();
+  let rawTag = '';
+  if (cachedDatabase.humans && cachedDatabase.humans[id]) rawTag = cachedDatabase.humans[id].tag || '';
+  else if (cachedDatabase.animals && cachedDatabase.animals[id]) rawTag = cachedDatabase.animals[id].tag || '';
+  
+  if (rawTag) {
+    const m = String(rawTag).match(/\d{16,21}/);
+    if (m) return m[0];
+  }
+  return '';
+}
+
+// 1. Действие: #Avenger-faces
+function actionFaces() {
+  buildFaces();
+  const text = document.getElementById('facesOut').textContent.trim();
+  const id = document.getElementById('pid').value.trim();
+  if (!id || text.includes('????')) {
+    alert('Сначала введите ID игрока!');
+    return;
+  }
+  copyAndOpenDiscord(CH_FACES, text);
+}
+
+// 2. Действие: Снять CoolDown (.cdr)
+function actionCdr() {
+  const dcId = resolveDiscordId();
+  if (!dcId) {
+    const manual = prompt('Введите числовой Discord ID игрока (или ник) для команды .cdr:');
+    if (!manual) return;
+    document.getElementById('customDcId').value = manual.trim();
+    return actionCdr();
+  }
+  const tagStr = /^\d{16,21}$/.test(dcId) ? `<@${dcId}>` : dcId;
+  const cmd = `.cdr ${tagStr}`;
+  copyAndOpenDiscord(CH_AVENGER, cmd);
+}
+
+// 3. Действие: Запрос роли 18+
+function actionReq18() {
+  const dcId = resolveDiscordId();
+  if (!dcId) {
+    const manual = prompt('Введите числовой Discord ID игрока для запроса 18+:');
+    if (!manual) return;
+    document.getElementById('customDcId').value = manual.trim();
+    return actionReq18();
+  }
+  const tagStr = /^\d{16,21}$/.test(dcId) ? `<@${dcId}>` : dcId;
+  const msg = `${tagStr} — просьба выдать 18+ @Ассистент @Мл. Ассистент`;
+  copyAndOpenDiscord(CH_AVENGER, msg);
+}
+
+// 4. Действие: Отпись в #admin-log
+function actionAdminLog() {
+  const id = document.getElementById('pid').value.trim();
+  if (!id) {
+    alert('Введите ID игрока!');
+    document.getElementById('pid').focus();
+    return;
+  }
+  const helper = document.getElementById('helperTag').value.trim();
+  let logText = `~ выпустил ${id}`;
+  if (helper) logText += ` ft ${helper}`;
+
+  const cat = roleCategory();
+  if (cat === 'animal' || cat === 'monkey') {
+    logText += ` @Куратор расы`;
+  }
+
+  copyAndOpenDiscord(CH_ADMINLOG, logText);
+}
+
+// ==================== ЧЕКБОКСЫ И СЧЕТЧИКИ (СБРОС ПО F5) ====================
 function updateCount(detailsId, counterId){
   const box = document.getElementById(detailsId);
   if (!box) return;
@@ -278,11 +406,10 @@ function updateCount(detailsId, counterId){
 }
 
 function wireCheckboxes(){
+  // Больше не сохраняем в localStorage: после выпуска обновление F5 делает страницу чистой
   document.querySelectorAll("details input[type='checkbox']").forEach(ch => {
-    const id = ch.id;
-    ch.checked = loadCheck(id);
+    ch.checked = false;
     ch.addEventListener('change', () => {
-      saveCheck(id, ch.checked);
       updateCount('qHuman','c_human');
       updateCount('qAnimals','c_animals');
       updateCount('qMonkeys','c_monkeys');
@@ -293,7 +420,7 @@ function wireCheckboxes(){
   updateCount('qMonkeys','c_monkeys');
 }
 
-// ===== Role filter & guide
+// ==================== ФИЛЬТРАЦИЯ РОЛЕЙ И ГАЙДОВ ====================
 function roleCategory(){
   const v = (document.getElementById('role').value||'').trim().toLowerCase();
   if (v === 'human') return 'human';
@@ -311,7 +438,7 @@ function applyRoleFilter(){
   if (cat === 'animal' && qa){ qa.open = true; if(qh) qh.open = false; if(qm) qm.open=false; }
   if (cat === 'monkey' && qm){ qm.open = true; if(qh) qh.open=false; if(qa) qa.open=false; }
 
-  // фильтрация блока 4 (гайд)
+  // Фильтрация блока 4 (гайд)
   document.querySelectorAll('.gitem').forEach(el => {
     const gCat = el.getAttribute('data-cat');
     if (cat === 'human') {
@@ -327,13 +454,15 @@ function applyRoleFilter(){
 document.getElementById('role').addEventListener('change', ()=>{ applyRoleFilter(); buildFaces(); });
 document.getElementById('age18').addEventListener('change', ()=>{ buildFaces(); });
 
-// ===== HB checker
+// ==================== HEAD BLEND ПРОВЕРКА ====================
 function ex(){
   const sample = {'headBlend':{'shapeFirstId':19,'shapeSecondId':85,'shapeThirdId':75,'shapeMix':65,'thirdMix':35,'skinFirstId':3,'skinSecondId':6,'skinThirdId':9,'skinMix':50}};
   document.getElementById('json').value = JSON.stringify(sample, null, 2);
   checkHB();
 }
+
 function pill(text){ return '<span class="pill">'+text+'</span>'; }
+
 function ruleCard(ok, title, want, now, why){
   const cls = ok ? 'good' : 'bad';
   const icon = ok ? '✅' : '❌';
@@ -344,6 +473,7 @@ function ruleCard(ok, title, want, now, why){
     +'<div class="expl"><b>Вывод:</b> '+(ok ? 'Всё в норме.' : why)+'</div>'
     +'</div>';
 }
+
 function checkHB(){
   const sum = document.getElementById('hbSummary');
   const list = document.getElementById('hbList');
@@ -434,20 +564,29 @@ function checkHB(){
   sum.innerHTML = pill(`Пройдено ${pass}/${total}`) + pill(`shapeMix=${sm}`) + pill(`thirdMix=${tm}`);
 }
 
+// ==================== СБОРКА СТРОКИ ДЛЯ #Avenger-faces ====================
 function buildFaces(){
-  const id=(document.getElementById('pid').value||'????').trim();
-  let name=(document.getElementById('pname').value||'Имя Фамилия').trim();
-  const age=(document.getElementById('age18').value||'').trim();
-  if(age==='18+ есть'&&!name.startsWith('*')) name='*'+name;
-  document.getElementById('facesOut').textContent=name+' | '+id;
-}
+  const id = (document.getElementById('pid').value||'????').trim();
+  let name = (document.getElementById('pname').value||'Имя Фамилия').trim();
+  const age = (document.getElementById('age18').value||'').trim();
+  const cat = roleCategory();
+  const hair = (document.getElementById('hairColor').value||'').trim();
 
-async function copy(sel){
-  try{
-    await navigator.clipboard.writeText(document.querySelector(sel).textContent);
-  }catch(e){
-    alert('Не удалось скопировать');
+  // Для животных/обезьян паспортная фамилия ??? или отсутствует
+  if (cat === 'animal' || cat === 'monkey') {
+    name = name.replace(/\s+(\?\?\?|\.{3}|—).*$/, '');
+    if (age === '18+ есть' && !name.startsWith('*')) name = '*' + name;
+    document.getElementById('facesOut').textContent = `${name} | ${id}`;
+    return;
   }
+
+  // Для людей
+  if (age === '18+ есть' && !name.startsWith('*')) name = '*' + name;
+  let res = `${name} | ${id}`;
+  if (hair) {
+    res += ` (натуральный цвет волос: ${hair})`;
+  }
+  document.getElementById('facesOut').textContent = res;
 }
 
 // ==================== АВТО-СИНХРОНИЗАЦИЯ С GOOGLE SHEETS ====================
@@ -518,6 +657,11 @@ function handleIdSearch(){
     document.getElementById('pname').value = p.name;
     document.getElementById('role').value = 'human';
     if(infoEl) infoEl.innerHTML = `<span class="tag-badge">Discord: ${p.tag}</span> <span class="tag-badge">Откуда: ${p.from || 'Не указано'}</span>`;
+    
+    // Предзаполнение Discord ID, если в поле тега содержатся цифры
+    const m = String(p.tag).match(/\d{16,21}/);
+    if (m) document.getElementById('customDcId').value = m[0];
+
     applyRoleFilter();
     buildFaces();
     return;
@@ -536,6 +680,10 @@ function handleIdSearch(){
     else document.getElementById('role').value = 'animal';
 
     if(infoEl) infoEl.innerHTML = `<span class="tag-badge">Discord: ${p.tag}</span> <span class="tag-badge" style="color:#fca5a5">🐾 Животное/Примат</span>`;
+    
+    const m = String(p.tag).match(/\d{16,21}/);
+    if (m) document.getElementById('customDcId').value = m[0];
+
     applyRoleFilter();
     buildFaces();
     return;
@@ -545,31 +693,7 @@ function handleIdSearch(){
   buildFaces();
 }
 
-// ==================== DISCORD ПЕРЕХОД И КОПИРОВАНИЕ ====================
-function handleDiscordClick(e) {
-  buildFaces(); // формируем строку
-  
-  const text = document.getElementById('facesOut').textContent.trim();
-  if (!text || text.includes('????')) {
-    e.preventDefault(); // отменяем переход, если ID не заполнен
-    alert('Сначала введите ID игрока!');
-    return;
-  }
-
-  // 1. Копируем текст в буфер обмена
-  const ta = document.createElement('textarea');
-  ta.value = text;
-  ta.style.position = 'fixed';
-  ta.style.left = '-9999px';
-  document.body.appendChild(ta);
-  ta.select();
-  document.execCommand('copy');
-  document.body.removeChild(ta);
-
-  // Мы НЕ отменяем переход (нет e.preventDefault) — браузер сам физически передает команду Windows открыть приложение Discord!
-}
-  
-// ==================== СТАРТ ====================
+// ==================== СТАРТ СТРАНИЦЫ ====================
 document.addEventListener('DOMContentLoaded', ()=>{
   applyRoleFilter();
   wireCheckboxes();
