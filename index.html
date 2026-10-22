@@ -371,7 +371,7 @@ function actionReq18() {
     return actionReq18();
   }
   const tagStr = /^\d{16,21}$/.test(dcId) ? `<@${dcId}>` : dcId;
-  const msg = `${tagStr} — просьба выдать 18+ @Ассистент @Мл. Ассистент`;
+  const msg = `${tagStr} — просьба выдать 18+ @Ассистент @Мл.Ассистент`;
   copyAndOpenDiscord(CH_AVENGER, msg);
 }
 
