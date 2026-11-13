@@ -179,7 +179,7 @@
       BEASTS.has($('role').value) ? $('role').value : 'animal'
     );
 
-    // Сохраняем исходную сборку имени и звёздочки.
+    // Сохраняем исходную сборку имени и звёздочки, введенной в имени.
     window.buildFaces = function () {
       originalBuildFaces();
       const color = $('fcHairColor').value.trim();
@@ -425,7 +425,7 @@
       refresh();
     });
 
-    ['age18', 'fcKind'].forEach(id => {
+    ['fcKind'].forEach(id => {
       $(id).addEventListener('change', refresh);
     });
 
